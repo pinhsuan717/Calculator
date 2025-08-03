@@ -7,8 +7,11 @@
   <style>
     body {
       font-family: sans-serif;
-      padding: 2rem;
+      padding: 1rem;
       background: #f2f2f2;
+      font-size:14px;
+      line-height:1.5;
+      font-weight:normal!important;
     }
     .container {
       max-width: 400px;
@@ -28,17 +31,46 @@
       margin-top: 1rem;
       font-size: 1.2rem;
       font-weight: bold;
-      color: #007700;
     }
+    .ok { color: green; }
+    .warn { color: orange; }
+    .no { color: red; }
   </style>
 </head>
 <body>
   <div class="container">
-    <h2>🔋 瓦特小時計算機</h2>
-    <label>電壓 (V)</label>
-    <input type="number" id="voltage" placeholder="例如 3.7" />
+    <h1>🔋UNITSA瓦特小時計算機🔋</h1>
+    <ol>
+        <li>先尋找電池上是否有標示<font color="red">【Wh】</font>字樣，如有則可直接依照下表判斷是可以攜帶。</li>
+  <h3>電池攜帶規範</h3>
+<table border="1" cellpadding="10" style="border-collapse: collapse; text-align: center; width: 100%; font-size: 14px;">
+  <thead style="background-color: #E0E0E0; font-weight: bold;">
+    <tr>
+      <th>🔋≦100 Wh</th>
+      <th>100 Wh＜🔋≦160 Wh</th>
+      <th>160 Wh＜🔋</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>最多 20 個</td>
+      <td>
+        最多 2 個，<br>
+        須航空公司同意<br>
+        （Approved tag）
+      </td>
+      <td style="color: red;">不可攜帶</td>
+    </tr>
+  </tbody>
+</table>
+<p></p>
+        <li>若無，則尋找是否有標示【額定容量(mAh/Ah)】及【額定電壓(V)】(會有<font color="red">capacity</font>字樣)，並輸入下方計算機計算。
+<p>‼️此數字<font color="red">並非</font>輸入/輸出電壓(例：input:5V=3A❌)。</p></li>
 
-    <label>容量</label>
+    <label >額定電壓(V)</label>
+    <input type="number" id="voltage" placeholder="例如 3.7"/>
+
+    <label>額定容量(mAh/Ah)</label>
     <input type="number" id="capacity" placeholder="例如 1000" />
 
     <label>容量單位</label>
@@ -50,7 +82,11 @@
     <button onclick="calculate()">計算瓦特小時</button>
 
     <div class="result" id="result"></div>
-  </div>
+    <div class="result" id="flightRule"></div>
+
+        <li>若依然無上述兩個標示，其電池能量標示不明確、無法確認電池能量(Wh)，<font color="red">請拒絕載運。</font></li>
+    </ol>
+</div>
 
   <script>
     function calculate() {
@@ -58,15 +94,33 @@
       const capacity = parseFloat(document.getElementById("capacity").value);
       const unit = document.getElementById("unit").value;
 
+      const resultEl = document.getElementById("result");
+      const ruleEl = document.getElementById("flightRule");
+
       if (isNaN(voltage) || isNaN(capacity) || voltage <= 0 || capacity <= 0) {
-        document.getElementById("result").textContent = "請輸入有效數值";
+        resultEl.textContent = "⚠️ 請輸入有效數值";
+        ruleEl.textContent = "";
         return;
       }
 
       const capAh = unit === "mAh" ? capacity / 1000 : capacity;
       const wh = voltage * capAh;
-      document.getElementById("result").textContent = `電池能量約為：${wh.toFixed(2)} Wh`;
+      resultEl.textContent = `電池能量：約 ${wh.toFixed(2)} Wh`;
+
+      if (wh < 100) {
+        ruleEl.textContent = "✅ 可攜帶上飛機";
+        ruleEl.className = "result ok";
+      } else if (wh <= 160) {
+        ruleEl.textContent = "⚠️ 須經航空公司同意後才可攜帶，請貼Operator Approved tag並請當日督導核可蓋章。";
+        ruleEl.className = "result warn";
+      } else {
+        ruleEl.textContent = "❌ 不可攜帶上飛機";
+        ruleEl.className = "result no";
+      }
+
     }
+
+
   </script>
 </body>
 </html>
